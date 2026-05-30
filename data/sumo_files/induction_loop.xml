@@ -1,0 +1,4 @@
+<addtional>
+    <inductionLoop id="u_turn_north" lane="949617034_0" pos="0.1" freq="60" file="output.xml"/>
+    <inductionLoop id="u_turn_south" lane="949617035_0" pos="0.1" freq="60" file="output.xml"/>
+</addtional>
