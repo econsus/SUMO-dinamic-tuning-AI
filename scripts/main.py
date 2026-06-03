@@ -41,8 +41,8 @@ def main():
                 step_callback=recorder.step_callback
             )
 
-        report_path = recorder.save_report()
-        print(f"\nReport saved to {report_path}")
+        json_path, csv_path = recorder.save_report()
+        print(f"\nReports saved to:\n  {json_path}\n  {csv_path}")
 
     except Exception as e:
         print(f"\nFatal error: {e}")

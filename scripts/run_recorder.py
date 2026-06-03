@@ -1,3 +1,5 @@
+import csv
+import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -43,15 +45,34 @@ class RunRecorder:
                 self.total_counts[lid] += self.minute_accum[lid]
                 self.minute_accum[lid] = 0
 
-        report_path = self.run_dir / "induction_report.txt"
-        with open(report_path, 'w') as f:
-            f.write("Induction Loop Vehicle Count Report\n")
-            f.write("=" * 40 + "\n\n")
-            for lid in self.loop_ids:
-                f.write(f"Loop: {lid}\n")
-                f.write("-" * 30 + "\n")
-                for i, count in enumerate(self.minute_counts[lid], 1):
-                    f.write(f"  Minute {i}: {count}\n")
-                f.write(f"\n  Total: {self.total_counts[lid]}\n\n")
+        report = {}
+        for lid in self.loop_ids:
+            report[lid] = {
+                "per_minute": self.minute_counts[lid],
+                "total": self.total_counts[lid]
+            }
 
-        return report_path
+        json_path = self.run_dir / "induction_report.json"
+        with open(json_path, 'w') as f:
+            json.dump(report, f, indent=2)
+
+        csv_path = self.run_dir / "induction_report.csv"
+        max_minutes = max(len(v["per_minute"]) for v in report.values()) if report else 0
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            header = ["Minute"]
+            for lid in self.loop_ids:
+                header.append(f"{lid}")
+            writer.writerow(header)
+            for i in range(max_minutes):
+                row = [i + 1]
+                for lid in self.loop_ids:
+                    counts = report[lid]["per_minute"]
+                    row.append(counts[i] if i < len(counts) else 0)
+                writer.writerow(row)
+            total_row = ["Total"]
+            for lid in self.loop_ids:
+                total_row.append(report[lid]["total"])
+            writer.writerow(total_row)
+
+        return json_path, csv_path
