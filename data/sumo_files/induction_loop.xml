@@ -9,6 +9,4 @@
     <inductionLoop id="total_north_right" lane="675098743#2_0" pos="6.22" period="60.00" file="output.xml"/>
     <inductionLoop id="total_south_left" lane="585303113#2_1" pos="7.75" period="60.00" file="output.xml"/>
     <inductionLoop id="total_south_right" lane="585303113#2_0" pos="7.75" period="60.00" file="output.xml"/>
-    <inductionLoop id="u_turn_north" lane="949617034_0" pos="0.10" period="60.00" file="output.xml"/>
-    <inductionLoop id="u_turn_south" lane="949617035_0" pos="0.10" period="60.00" file="output.xml"/>
 </additional>

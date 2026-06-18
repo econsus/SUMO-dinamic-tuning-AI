@@ -1,0 +1,42 @@
+[
+  {
+    "iteration": 1,
+    "total_reward": -1728915.0,
+    "avg_reward": -216114.375,
+    "avg_loss": null,
+    "epsilon": 0.7,
+    "total_steps": 8
+  },
+  {
+    "iteration": 2,
+    "total_reward": -1733820.5,
+    "avg_reward": -216727.5625,
+    "avg_loss": null,
+    "epsilon": 0.49,
+    "total_steps": 8
+  },
+  {
+    "iteration": 3,
+    "total_reward": -1733850.5,
+    "avg_reward": -216731.3125,
+    "avg_loss": null,
+    "epsilon": 0.343,
+    "total_steps": 8
+  },
+  {
+    "iteration": 4,
+    "total_reward": -1731647.0,
+    "avg_reward": -216455.875,
+    "avg_loss": 54599237632.0,
+    "epsilon": 0.2401,
+    "total_steps": 8
+  },
+  {
+    "iteration": 5,
+    "total_reward": -1733838.5,
+    "avg_reward": -216729.8125,
+    "avg_loss": 51740158976.0,
+    "epsilon": 0.1681,
+    "total_steps": 8
+  }
+]

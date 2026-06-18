@@ -1,0 +1,26 @@
+[
+  {
+    "iteration": 1,
+    "total_reward": -785709.5,
+    "avg_reward": -98213.6875,
+    "avg_loss": null,
+    "epsilon": 0.7,
+    "total_steps": 8
+  },
+  {
+    "iteration": 2,
+    "total_reward": -1731647.0,
+    "avg_reward": -216455.875,
+    "avg_loss": null,
+    "epsilon": 0.49,
+    "total_steps": 8
+  },
+  {
+    "iteration": 3,
+    "total_reward": -1731647.0,
+    "avg_reward": -216455.875,
+    "avg_loss": null,
+    "epsilon": 0.343,
+    "total_steps": 8
+  }
+]
