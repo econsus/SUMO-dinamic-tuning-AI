@@ -8,7 +8,7 @@ class DataRepo:
     _instance = None
     _lock = Lock()
 
-    BASE_DIR = Path(__file__).parent.resolve()
+    BASE_DIR = Path(__file__).resolve().parent.parent
 
     def __new__(cls):
         if cls._instance is None:

@@ -49,7 +49,6 @@ CCTV Excel ──> Data Processing ──> Training Array ──> SUMOEnv ──
 ```
 project_root/
 ├── CCTV Data Remastered.xlsx
-├── data_repo.py                       ← File indexer singleton
 ├── testing/                           ← Unused legacy scripts
 │   ├── main.py
 │   ├── main copy.py
@@ -63,6 +62,7 @@ project_root/
 ├── src/
 │   ├── train_dqn.py                   ← Entry point
 │   ├── logger.py                      ← TrainingLogger
+│   ├── data_repo.py                   ← File indexer singleton
 │   ├── data/
 │   │   ├── __init__.py
 │   │   └── traffic_data.py            ← Excel parser

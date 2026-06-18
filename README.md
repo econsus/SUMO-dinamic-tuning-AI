@@ -11,7 +11,6 @@ The agent learns to adjust two lane-changing parameters (`lcCooperative`, `lcAss
 ```
 root/
 ├── CCTV Data Remastered.xlsx            ← Source CCTV traffic data
-├── data_repo.py                         ← File indexer singleton
 ├── README.md
 ├── DEVELOPMENT_GUIDE.md
 ├── testing/                             ← Unused legacy scripts
@@ -27,6 +26,7 @@ root/
 ├── src/
 │   ├── train_dqn.py                     ← Training entry point
 │   ├── logger.py                        ← TrainingLogger
+│   ├── data_repo.py                     ← File indexer singleton
 │   ├── data/
 │   │   ├── __init__.py
 │   │   └── traffic_data.py              ← Excel parser
@@ -289,7 +289,7 @@ agent.q_net.load_state_dict(checkpoint["q_net_state_dict"])
 
 | Script | Description |
 |--------|-------------|
-| `data_repo.py` | Singleton that scans the project directory for all data/config files. Provides typed accessors for SUMO config path, network path, route path, and induction loop path. Can parse XML configs, routes, edges, and induction loops into dictionaries. |
+| `src/data_repo.py` | Singleton that scans the project directory for all data/config files. Provides typed accessors for SUMO config path, network path, route path, and induction loop path. Can parse XML configs, routes, edges, and induction loops into dictionaries. |
 | `src/data/traffic_data.py` | Opens `CCTV Data Remastered.xlsx` with `openpyxl` (data-only mode), reads cells `I3:N30`, and populates the global `data_records` list with dicts mapping `{SL, SPT, UL, UPT, OS, OU}` to integer values. |
 
 ### Package Init
@@ -395,7 +395,7 @@ The config is saved once at init as `config.json`. The final model checkpoint is
 
 ---
 
-### `data_repo.py`
+### `src/data_repo.py`
 
 A **singleton** that discovers and indexes all files under the project directory at construction time. Scans `data/`, `config/`, and `cctv_data/` subtrees and maps relative paths (e.g., `data/sumo_files/map_suhat_sumoconfig.sumocfg`) to absolute `Path` objects.
 
