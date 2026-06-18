@@ -152,14 +152,87 @@ After each step, the agent replays **5 random batches** of 32 transitions each:
 4. MSE loss → Adam optimizer step
 5. **Soft update** the target network every 100 steps: `θ_target ← τ·θ_online + (1-τ)·θ_target` with `τ = 0.005`
 
-**Logging output** (per run, timestamped folder `logs/YYYY-MM-DD_HH-MM-SS/`):
+**Logging output** — each run creates a timestamped folder `logs/YYYY-MM-DD_HH-MM-SS/` containing:
 
-| File           | Format | Content                                                 |
-|----------------|--------|---------------------------------------------------------|
-| `config.json`  | JSON   | All CLI arguments and hyperparameters                   |
-| `metrics.csv`  | CSV    | Per-step: iteration, data_point, step, reward, sim counts, expected counts, errors, params, epsilon, loss |
-| `summary.json` | JSON   | Per-iteration: total/avg reward, avg loss, epsilon, total steps |
-| `dqn_final.pt` | PyTorch| Model checkpoint (Q-network, target network, optimizer)  |
+---
+
+#### `config.json`
+
+All CLI arguments and hyperparameters saved at the start of the run. Example:
+
+```json
+{
+  "iterations": 5,
+  "sumo_binary": "sumo",
+  "warmup_minutes": 5,
+  "period_minutes": 5,
+  "lr": 0.001,
+  "gamma": 0.99,
+  "batch_size": 32,
+  "buffer_capacity": 10000,
+  "replay_per_step": 5,
+  "epsilon_start": 1.0,
+  "epsilon_min": 0.1,
+  "epsilon_decay": 0.7
+}
+```
+
+Use this to reproduce or compare runs.
+
+---
+
+#### `metrics.csv`
+
+One row per RL step — the finest-grained record of the training process.
+
+| Column | Example | Description |
+|--------|---------|-------------|
+| `iteration` | `1` | Outer training iteration (1‑indexed) |
+| `data_point` | `0` | Index into the CCTV data array being simulated |
+| `step_in_data` | `1` | Which of the 4 RL steps within this data point |
+| `reward` | `-142.500` | Negative MSE against expected counts. `-((sim_south − OS/12)² + (sim_north − OU/12)²) / 2`. Lower magnitude = better match |
+| `sim_south` | `37` | Simulated southbound vehicles counted in this `period-minutes` window (sum of both southbound induction loops) |
+| `sim_north` | `41` | Simulated northbound vehicles in this window (sum of both northbound induction loops) |
+| `expected_south` | `44.000` | Ground-truth expected southbound count in this window. Equals `OS / 12` since OS is an hourly rate and each window is `period-minutes` long |
+| `expected_north` | `35.500` | Ground-truth expected northbound count. Equals `OU / 12` |
+| `error_south` | `-7.000` | `sim_south − expected_south`. Negative = undershoot (too few vehicles simulated) |
+| `error_north` | `5.500` | `sim_north − expected_north`. Positive = overshoot |
+| `lcCooperative` | `0.800` | The agent's `lcCooperative` value used during this step (after applying the action delta) |
+| `lcAssertive` | `1.200` | The agent's `lcAssertive` value used during this step |
+| `epsilon` | `0.7000` | Exploration rate at this step. Higher = more random actions |
+| `loss` | `0.042000` | Neural network loss from the last replay batch. Empty (blank) when the replay buffer hasn't yet reached `batch-size` samples |
+
+---
+
+#### `summary.json`
+
+An array of per-iteration summary objects, one per outer iteration.
+
+| Key | Example | Description |
+|-----|---------|-------------|
+| `iteration` | `1` | Iteration number (1‑indexed) |
+| `total_reward` | `-2280.500` | Sum of all step rewards across all data points in this iteration |
+| `avg_reward` | `-285.062` | Mean reward per step = `total_reward / (N_data × 4)` |
+| `avg_loss` | `0.038` | Mean replay loss across all steps in this iteration (or `null` if no training occurred) |
+| `epsilon` | `0.700` | Epsilon value at the *end* of this iteration (after decay has been applied for the next iteration) |
+| `total_steps` | `8` | Total number of RL steps taken this iteration (= `N_data × 4`) |
+
+---
+
+#### `dqn_final.pt`
+
+PyTorch model checkpoint saved after all iterations complete. Contains a dictionary with 3 keys:
+
+- **`q_net_state_dict`** — Weights of the online Q-network. Load this for inference or further training.
+- **`target_net_state_dict`** — Weights of the target network (used during Double DQN training for stable Q-targets).
+- **`optimizer_state_dict`** — Adam optimizer state. Useful if you want to resume training from this checkpoint.
+
+Load with:
+
+```python
+checkpoint = torch.load("dqn_final.pt", map_location="cpu", weights_only=True)
+agent.q_net.load_state_dict(checkpoint["q_net_state_dict"])
+```
 
 ---
 
