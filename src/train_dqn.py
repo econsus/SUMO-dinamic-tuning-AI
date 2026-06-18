@@ -16,7 +16,7 @@ else:
     sys.exit("Please declare environment variable 'SUMO_HOME'")
 
 from data_repo import DataRepo
-from scripts.data.traffic_data import import_records, data_records
+from data.traffic_data import import_records, data_records
 from envs.sumo_env import SUMOEnv
 from agents.dqn_agent import DQNAgent
 from logger import TrainingLogger

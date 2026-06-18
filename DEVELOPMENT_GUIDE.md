@@ -50,6 +50,11 @@ CCTV Excel ──> Data Processing ──> Training Array ──> SUMOEnv ──
 project_root/
 ├── CCTV Data Remastered.xlsx
 ├── data_repo.py                       ← File indexer singleton
+├── testing/                           ← Unused legacy scripts
+│   ├── main.py
+│   ├── main copy.py
+│   ├── SumoSimulation.py
+│   └── run_recorder.py
 ├── data/sumo_files/
 │   ├── map_suhat_edit.net.xml         ← Road network
 │   ├── map_suhat_netedit.rou.xml      ← Route template (overridden at runtime)
@@ -58,9 +63,15 @@ project_root/
 ├── src/
 │   ├── train_dqn.py                   ← Entry point
 │   ├── logger.py                      ← TrainingLogger
-│   ├── envs/sumo_env.py               ← SUMOEnv (Gymnasium)
-│   ├── agents/dqn_agent.py            ← DQNAgent + QNetwork + ReplayBuffer
-│   └── scripts/data/traffic_data.py   ← Excel parser
+│   ├── data/
+│   │   ├── __init__.py
+│   │   └── traffic_data.py            ← Excel parser
+│   ├── envs/
+│   │   ├── __init__.py
+│   │   └── sumo_env.py                ← SUMOEnv (Gymnasium)
+│   └── agents/
+│       ├── __init__.py
+│       └── dqn_agent.py               ← DQNAgent + QNetwork + ReplayBuffer
 └── logs/                              ← Created at runtime
     └── YYYY-MM-DD_HH-MM-SS/
         ├── config.json
@@ -1089,7 +1100,7 @@ python src/train_dqn.py --iterations 2 --sumo-binary sumo-gui
 
 The following scripts are part of an earlier version of the project and are **not used** by the current DQN training pipeline:
 
-- `src/scripts/main.py`
-- `src/scripts/main copy.py`
-- `src/scripts/SumoSimulation.py`
-- `src/scripts/run_recorder.py`
+- `testing/main.py`
+- `testing/main copy.py`
+- `testing/SumoSimulation.py`
+- `testing/run_recorder.py`

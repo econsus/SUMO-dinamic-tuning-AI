@@ -6,6 +6,44 @@ The agent learns to adjust two lane-changing parameters (`lcCooperative`, `lcAss
 
 ---
 
+## Project Structure
+
+```
+root/
+├── CCTV Data Remastered.xlsx            ← Source CCTV traffic data
+├── data_repo.py                         ← File indexer singleton
+├── README.md
+├── DEVELOPMENT_GUIDE.md
+├── testing/                             ← Unused legacy scripts
+│   ├── main.py
+│   ├── main copy.py
+│   ├── SumoSimulation.py
+│   └── run_recorder.py
+├── data/sumo_files/                     ← SUMO network & config files
+│   ├── map_suhat_edit.net.xml
+│   ├── map_suhat_netedit.rou.xml
+│   ├── induction_loop.xml
+│   └── map_suhat_sumoconfig.sumocfg
+├── src/
+│   ├── train_dqn.py                     ← Training entry point
+│   ├── logger.py                        ← TrainingLogger
+│   ├── data/
+│   │   ├── __init__.py
+│   │   └── traffic_data.py              ← Excel parser
+│   ├── envs/
+│   │   ├── __init__.py
+│   │   └── sumo_env.py                  ← SUMOEnv (Gymnasium)
+│   └── agents/
+│       ├── __init__.py
+│       └── dqn_agent.py                 ← DQNAgent + QNetwork + ReplayBuffer
+└── logs/                                ← Created at runtime
+    └── YYYY-MM-DD_HH-MM-SS/
+        ├── config.json
+        ├── metrics.csv
+        ├── summary.json
+        └── dqn_final.pt
+```
+
 ## High-Level Flow
 
 ```
@@ -252,7 +290,7 @@ agent.q_net.load_state_dict(checkpoint["q_net_state_dict"])
 | Script | Description |
 |--------|-------------|
 | `data_repo.py` | Singleton that scans the project directory for all data/config files. Provides typed accessors for SUMO config path, network path, route path, and induction loop path. Can parse XML configs, routes, edges, and induction loops into dictionaries. |
-| `src/scripts/data/traffic_data.py` | Opens `CCTV Data Remastered.xlsx` with `openpyxl` (data-only mode), reads cells `I3:N30`, and populates the global `data_records` list with dicts mapping `{SL, SPT, UL, UPT, OS, OU}` to integer values. |
+| `src/data/traffic_data.py` | Opens `CCTV Data Remastered.xlsx` with `openpyxl` (data-only mode), reads cells `I3:N30`, and populates the global `data_records` list with dicts mapping `{SL, SPT, UL, UPT, OS, OU}` to integer values. |
 
 ### Package Init
 
@@ -375,7 +413,7 @@ A **singleton** that discovers and indexes all files under the project directory
 
 ---
 
-### `src/scripts/data/traffic_data.py`
+### `src/data/traffic_data.py`
 
 A simple module that loads the Excel workbook once at import time (`data_only=True`). The `import_records()` function reads rows 3–30 from columns I–N (which map to `SL, SPT, UL, UPT, OS, OU`), converts values to `int`, and appends each row as a list of 6 dicts to the global `data_records` list. Stops at the first completely empty row.
 
@@ -385,7 +423,7 @@ A simple module that loads the Excel workbook once at import time (`data_only=Tr
 
 These scripts are part of an earlier version of the project and are **not used** by the current DQN training pipeline:
 
-- `src/scripts/main.py`
-- `src/scripts/main copy.py`
-- `src/scripts/SumoSimulation.py`
-- `src/scripts/run_recorder.py`
+- `testing/main.py`
+- `testing/main copy.py`
+- `testing/SumoSimulation.py`
+- `testing/run_recorder.py`
