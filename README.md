@@ -69,7 +69,7 @@ root/
 │  4. SIMULATION & REWARD                                          │
 │     Run 5 min SUMO with updated params                           │
 │     Read induction loop counts (north / south)                   │
-│     Reward = -MSE(simulated vs expected OS/12, OU/12)            │
+│     Reward = -MAPE(simulated vs expected OS/12, OU/12)          │
 └──────────────────────────┬───────────────────────────────────────┘
                            ↓
 ┌──────────────────────────┴───────────────────────────────────────┐
@@ -103,7 +103,7 @@ The source data lives in **`CCTV Data Remastered.xlsx`**, a spreadsheet containi
 
 Internally, the Excel cells use formulas (e.g., `=C3*6`) to multiply raw 10-minute counts by 6 to get hourly rates. The `openpyxl` library reads these with `data_only=True`, so only the last-saved cached values are available.
 
-**Filtering**: rows where ALL 6 fields are zero are skipped entirely. Rows with non-zero flows but `OS=OU=0` are kept, but a warning is printed since those produce purely negative rewards (any simulated vehicle is penalised).
+**Filtering**: rows where either `OS=0` or `OU=0` are skipped entirely — these represent incomplete observations where the CCTV data hasn't been collected yet. Rows with zero in the input columns (`SL, SPT, UL, UPT`) are kept (zero traffic flow is valid input).
 
 **Output**: a NumPy array of shape `(N, 6)` — the first 4 columns are the state (`SL, SPT, UL, UPT`), the last 2 are the ground truth for reward (`OS, OU`).
 
@@ -168,13 +168,15 @@ expected_south = OS / 12
 expected_north = OU / 12
 ```
 
-The reward is the negative Mean Squared Error between simulated and expected counts:
+The reward is the negative **MAPE** (Mean Absolute Percentage Error) between simulated and expected counts:
 
 ```
-reward = -((sim_south - expected_south)² + (sim_north - expected_north)²) / 2
+mape = (|sim_south - expected_south| / expected_south +
+        |sim_north - expected_north| / expected_north) / 2
+reward = -mape
 ```
 
-This rewards the agent when both directions simultaneously match the observed data.
+This rewards the agent when both directions simultaneously match the observed data. A MAPE of 0.0 means a perfect match; a MAPE of 1.0 means 100% average error.
 
 After 4 such steps (4 × `period-minutes` of RL), the episode terminates and moves to the next data point.
 
@@ -228,7 +230,7 @@ One row per RL step — the finest-grained record of the training process.
 | `iteration` | `1` | Outer training iteration (1‑indexed) |
 | `data_point` | `0` | Index into the CCTV data array being simulated |
 | `step_in_data` | `1` | Which of the 4 RL steps within this data point |
-| `reward` | `-142.500` | Negative MSE against expected counts. `-((sim_south − OS/12)² + (sim_north − OU/12)²) / 2`. Lower magnitude = better match |
+| `reward` | `-0.250` | Negative MAPE against expected counts (see formula above). 0.0 = perfect match, -1.0 = 100% average error |
 | `sim_south` | `37` | Simulated southbound vehicles counted in this `period-minutes` window (sum of both southbound induction loops) |
 | `sim_north` | `41` | Simulated northbound vehicles in this window (sum of both northbound induction loops) |
 | `expected_south` | `44.000` | Ground-truth expected southbound count in this window. Equals `OS / 12` since OS is an hourly rate and each window is `period-minutes` long |

@@ -96,7 +96,7 @@ The CCTV data is an Excel spreadsheet with hourly vehicle flow rates for 4 direc
 1. Install `openpyxl` and load the workbook with `data_only=True`.
 2. Read rows I3:N30, convert cell values to integers.
 3. Stop reading at the first empty row.
-4. Merge each row's 6 dicts into one flat list and filter out all-zero rows.
+4. Merge each row's 6 dicts into one flat list and filter out rows with incomplete observations (`OS=0` or `OU=0`).
 5. Convert to a NumPy array of shape `(N, 6)` with dtype `float32`.
 6. Build a `DataRepo` singleton to locate all SUMO file paths.
 
@@ -154,8 +154,8 @@ def extract_target_data() -> np.ndarray:
         sl, spt, ul, upt, os_val, ou_val = [
             int(v) if v is not None else 0 for v in row
         ]
-        # Skip rows where EVERYTHING is zero
-        if sl == 0 and spt == 0 and ul == 0 and upt == 0 and os_val == 0 and ou_val == 0:
+        # Skip rows with incomplete observations (OS=0 or OU=0)
+        if os_val == 0 or ou_val == 0:
             continue
         rows.append([sl, spt, ul, upt, os_val, ou_val])
     return np.array(rows, dtype=np.float32)
@@ -531,10 +531,12 @@ def step(self, action: int):
         for lid in self.south_loop_ids:
             sim_south += traci.inductionloop.getLastStepVehicleNumber(lid)
 
-    # Reward: negative MSE against expected 5-minute counts
+    # Reward: negative MAPE against expected 5-minute counts
     expected_south = self._current_row[4] / 12.0
     expected_north = self._current_row[5] / 12.0
-    reward = -((sim_south - expected_south) ** 2 + (sim_north - expected_north) ** 2) / 2.0
+    mape = (abs(sim_south - expected_south) / expected_south +
+            abs(sim_north - expected_north) / expected_north) / 2.0
+    reward = -mape
 
     self.step_idx += 1
     terminated = self.step_idx >= self.steps_per_data

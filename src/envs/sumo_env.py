@@ -117,7 +117,9 @@ class SUMOEnv(gym.Env):
 
         expected_south = self._current_row[4] / 12.0
         expected_north = self._current_row[5] / 12.0
-        reward = -((sim_south - expected_south) ** 2 + (sim_north - expected_north) ** 2) / 2.0
+        mape = (abs(sim_south - expected_south) / expected_south +
+                abs(sim_north - expected_north) / expected_north) / 2.0
+        reward = -mape
 
         self.step_idx += 1
         terminated = self.step_idx >= self.steps_per_data

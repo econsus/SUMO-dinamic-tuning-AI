@@ -25,7 +25,6 @@ from logger import TrainingLogger
 def extract_target_data() -> np.ndarray:
     import_records()
     rows = []
-    skipped = 0
     for row in data_records:
         vals = {}
         for d in row:
@@ -36,13 +35,9 @@ def extract_target_data() -> np.ndarray:
         upt = vals.get("UPT") or 0
         os_val = vals.get("OS") or 0
         ou_val = vals.get("OU") or 0
-        if sl == 0 and spt == 0 and ul == 0 and upt == 0 and os_val == 0 and ou_val == 0:
+        if os_val == 0 or ou_val == 0:
             continue
         rows.append([sl, spt, ul, upt, os_val, ou_val])
-        if os_val == 0 and ou_val == 0:
-            skipped += 1
-    if skipped:
-        print(f"  [WARN] {skipped} data point(s) have OS=OU=0 — reward will be purely negative")
     return np.array(rows, dtype=np.float32)
 
 
