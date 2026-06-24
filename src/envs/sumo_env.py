@@ -117,8 +117,9 @@ class SUMOEnv(gym.Env):
         sim_north = len(north_ids)
         sim_south = len(south_ids)
 
-        expected_south = self._current_row[4] / 12.0
-        expected_north = self._current_row[5] / 12.0
+        divisor = 60.0 / self.period_minutes
+        expected_south = self._current_row[4] / divisor
+        expected_north = self._current_row[5] / divisor
         mape = (abs(sim_south - expected_south) / expected_south +
                 abs(sim_north - expected_north) / expected_north) / 2.0
         reward = -mape

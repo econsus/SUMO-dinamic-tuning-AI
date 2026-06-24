@@ -196,6 +196,23 @@ After each step, the agent replays **5 random batches** of 32 transitions each:
 
 ---
 
+### Understanding the metrics: total, avg, and loss
+
+Three key numbers appear across the logs — here's what they mean:
+
+| Term | What it is | What it tells you |
+|------|-----------|-------------------|
+| **Loss** | The neural network's **training error** — Mean Squared Error between the predicted Q-value and the target Q-value (from Double DQN). Calculated per replay batch. | Lower = the Q-network is learning to predict action values more accurately. If loss is decreasing over iterations, the agent is converging. If loss spikes or stays flat, check learning rate or reward scaling. |
+| **Total reward** | Sum of all step rewards across an entire iteration (all data points × 4 steps). Since reward = -MAPE, this is always ≤ 0. | Less negative = better overall simulation accuracy. **But** this depends on how many steps were taken, so it's only comparable within the same iteration count. |
+| **Avg reward** | `total_reward / total_steps` — the per-step mean reward. | More comparable across runs. Trending toward 0.0 (from e.g. -0.5) means the agent is improving. A hard floor exists: you can't exceed 0.0 (perfect match), and the minimum is bounded by the data consistency (some rows may have unavoidable error). |
+
+In practice:
+- **Loss** tells you the neural network is learning (good) or broken (bad)
+- **Avg reward** tells you the agent's actual performance (how close the simulation matches CCTV data)
+- **Total reward** is useful for comparing iterations within the same run
+
+---
+
 #### `config.json`
 
 All CLI arguments and hyperparameters saved at the start of the run. Example:
