@@ -57,7 +57,7 @@ class TrainingLogger:
             iteration, data_idx, step_in_data,
             f"{reward:.3f}",
             f"{sim_south:.0f}", f"{sim_north:.0f}",
-            f"{expected_south:.3f}", f"{expected_north:.3f}",
+            f"{expected_south:.0f}", f"{expected_north:.0f}",
             f"{sim_south - expected_south:.3f}",
             f"{sim_north - expected_north:.3f}",
             f"{lcCooperative:.3f}", f"{lcAssertive:.3f}",
