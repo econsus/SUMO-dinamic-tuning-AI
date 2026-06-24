@@ -1,0 +1,27 @@
+{
+  "total_steps": 12000,
+  "loop_vehicle_counts": {
+    "total_north_left": 0,
+    "total_north_right": 1,
+    "total_south_left": 0,
+    "total_south_right": 1
+  },
+  "flow_loop_map": {
+    "f_sl": {
+      "total_north_left": [],
+      "total_north_right": [
+        "f_sl.0"
+      ],
+      "total_south_left": [],
+      "total_south_right": []
+    },
+    "f_ul": {
+      "total_north_left": [],
+      "total_north_right": [],
+      "total_south_left": [],
+      "total_south_right": [
+        "f_ul.0"
+      ]
+    }
+  }
+}

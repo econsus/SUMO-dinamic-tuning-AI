@@ -1,0 +1,107 @@
+[
+  {
+    "test": "All 4 flows at 360 each",
+    "flows": {
+      "SL": 360,
+      "SPT": 360,
+      "UL": 360,
+      "UPT": 360
+    },
+    "expected_north": 60.0,
+    "expected_south": 60.0,
+    "sim_north": 515,
+    "sim_south": 513,
+    "ratio_north": 8.6,
+    "ratio_south": 8.6,
+    "per_loop": {
+      "total_north_left": 187,
+      "total_north_right": 328,
+      "total_south_left": 226,
+      "total_south_right": 287
+    }
+  },
+  {
+    "test": "Only SL=360, others 0",
+    "flows": {
+      "SL": 360,
+      "SPT": 0,
+      "UL": 0,
+      "UPT": 0
+    },
+    "expected_north": 30.0,
+    "expected_south": 0.0,
+    "sim_north": 225,
+    "sim_south": 0,
+    "ratio_north": 7.5,
+    "ratio_south": null,
+    "per_loop": {
+      "total_north_left": 0,
+      "total_north_right": 225,
+      "total_south_left": 0,
+      "total_south_right": 0
+    }
+  },
+  {
+    "test": "Only SPT=360, others 0",
+    "flows": {
+      "SL": 0,
+      "SPT": 360,
+      "UL": 0,
+      "UPT": 0
+    },
+    "expected_north": 0.0,
+    "expected_south": 30.0,
+    "sim_north": 0,
+    "sim_south": 335,
+    "ratio_north": null,
+    "ratio_south": 11.2,
+    "per_loop": {
+      "total_north_left": 0,
+      "total_north_right": 0,
+      "total_south_left": 0,
+      "total_south_right": 335
+    }
+  },
+  {
+    "test": "Only UL=360, others 0",
+    "flows": {
+      "SL": 0,
+      "SPT": 0,
+      "UL": 360,
+      "UPT": 0
+    },
+    "expected_north": 0.0,
+    "expected_south": 30.0,
+    "sim_north": 0,
+    "sim_south": 227,
+    "ratio_north": null,
+    "ratio_south": 7.6,
+    "per_loop": {
+      "total_north_left": 0,
+      "total_north_right": 0,
+      "total_south_left": 0,
+      "total_south_right": 227
+    }
+  },
+  {
+    "test": "Only UPT=360, others 0",
+    "flows": {
+      "SL": 0,
+      "SPT": 0,
+      "UL": 0,
+      "UPT": 360
+    },
+    "expected_north": 30.0,
+    "expected_south": 0.0,
+    "sim_north": 350,
+    "sim_south": 0,
+    "ratio_north": 11.7,
+    "ratio_south": null,
+    "per_loop": {
+      "total_north_left": 0,
+      "total_north_right": 350,
+      "total_south_left": 0,
+      "total_south_right": 0
+    }
+  }
+]

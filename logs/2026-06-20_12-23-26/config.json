@@ -1,0 +1,14 @@
+{
+  "iterations": 5,
+  "sumo_binary": "sumo",
+  "warmup_minutes": 5,
+  "period_minutes": 5,
+  "lr": 0.001,
+  "gamma": 0.99,
+  "batch_size": 32,
+  "buffer_capacity": 10000,
+  "replay_per_step": 5,
+  "epsilon_start": 1.0,
+  "epsilon_min": 0.1,
+  "epsilon_decay": 0.7
+}

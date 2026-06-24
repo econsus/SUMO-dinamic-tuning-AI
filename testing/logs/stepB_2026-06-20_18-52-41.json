@@ -1,0 +1,138 @@
+[
+  {
+    "data_point": 0,
+    "phase": "warmup",
+    "north": 274,
+    "south": 433,
+    "per_loop": {
+      "total_north_left": 132,
+      "total_north_right": 142,
+      "total_south_left": 31,
+      "total_south_right": 402
+    }
+  },
+  {
+    "data_point": 0,
+    "phase": "rl_step_1",
+    "north": 299,
+    "south": 474,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 132,
+      "total_north_right": 167,
+      "total_south_left": 58,
+      "total_south_right": 416
+    }
+  },
+  {
+    "data_point": 0,
+    "phase": "rl_step_2",
+    "north": 307,
+    "south": 446,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 221,
+      "total_north_right": 86,
+      "total_south_left": 0,
+      "total_south_right": 446
+    }
+  },
+  {
+    "data_point": 0,
+    "phase": "rl_step_3",
+    "north": 295,
+    "south": 511,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 111,
+      "total_north_right": 184,
+      "total_south_left": 39,
+      "total_south_right": 472
+    }
+  },
+  {
+    "data_point": 0,
+    "phase": "rl_step_4",
+    "north": 308,
+    "south": 477,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 144,
+      "total_north_right": 164,
+      "total_south_left": 40,
+      "total_south_right": 437
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "warmup",
+    "north": 529,
+    "south": 514,
+    "per_loop": {
+      "total_north_left": 401,
+      "total_north_right": 128,
+      "total_south_left": 82,
+      "total_south_right": 432
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "rl_step_1",
+    "north": 577,
+    "south": 648,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 510,
+      "total_north_right": 67,
+      "total_south_left": 81,
+      "total_south_right": 567
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "rl_step_2",
+    "north": 570,
+    "south": 614,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 495,
+      "total_north_right": 75,
+      "total_south_left": 84,
+      "total_south_right": 530
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "rl_step_3",
+    "north": 588,
+    "south": 553,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 550,
+      "total_north_right": 38,
+      "total_south_left": 58,
+      "total_south_right": 495
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "rl_step_4",
+    "north": 580,
+    "south": 589,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 540,
+      "total_north_right": 40,
+      "total_south_left": 50,
+      "total_south_right": 539
+    }
+  }
+]

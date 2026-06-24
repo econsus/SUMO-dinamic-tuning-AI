@@ -1,0 +1,1 @@
+iteration,data_point,step_in_data,reward,sim_south,sim_north,expected_south,expected_north,error_south,error_north,lcCooperative,lcAssertive,epsilon,loss

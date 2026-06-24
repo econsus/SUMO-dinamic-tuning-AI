@@ -1,0 +1,138 @@
+[
+  {
+    "data_point": 0,
+    "phase": "warmup",
+    "north": 32,
+    "south": 44,
+    "per_loop": {
+      "total_north_left": 16,
+      "total_north_right": 16,
+      "total_south_left": 4,
+      "total_south_right": 41
+    }
+  },
+  {
+    "data_point": 0,
+    "phase": "rl_step_1",
+    "north": 31,
+    "south": 44,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 12,
+      "total_north_right": 19,
+      "total_south_left": 7,
+      "total_south_right": 37
+    }
+  },
+  {
+    "data_point": 0,
+    "phase": "rl_step_2",
+    "north": 36,
+    "south": 47,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 27,
+      "total_north_right": 9,
+      "total_south_left": 0,
+      "total_south_right": 47
+    }
+  },
+  {
+    "data_point": 0,
+    "phase": "rl_step_3",
+    "north": 35,
+    "south": 51,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 14,
+      "total_north_right": 21,
+      "total_south_left": 5,
+      "total_south_right": 48
+    }
+  },
+  {
+    "data_point": 0,
+    "phase": "rl_step_4",
+    "north": 36,
+    "south": 49,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 18,
+      "total_north_right": 18,
+      "total_south_left": 5,
+      "total_south_right": 45
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "warmup",
+    "north": 62,
+    "south": 51,
+    "per_loop": {
+      "total_north_left": 49,
+      "total_north_right": 13,
+      "total_south_left": 10,
+      "total_south_right": 41
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "rl_step_1",
+    "north": 61,
+    "south": 52,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 51,
+      "total_north_right": 10,
+      "total_south_left": 9,
+      "total_south_right": 43
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "rl_step_2",
+    "north": 66,
+    "south": 63,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 58,
+      "total_north_right": 8,
+      "total_south_left": 13,
+      "total_south_right": 52
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "rl_step_3",
+    "north": 70,
+    "south": 53,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 55,
+      "total_north_right": 15,
+      "total_south_left": 10,
+      "total_south_right": 44
+    }
+  },
+  {
+    "data_point": 1,
+    "phase": "rl_step_4",
+    "north": 67,
+    "south": 63,
+    "expected_north": 35.5,
+    "expected_south": 44.0,
+    "per_loop": {
+      "total_north_left": 64,
+      "total_north_right": 3,
+      "total_south_left": 5,
+      "total_south_right": 59
+    }
+  }
+]

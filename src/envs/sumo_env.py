@@ -106,14 +106,16 @@ class SUMOEnv(gym.Env):
 
         self._apply_params()
 
-        sim_south = 0
-        sim_north = 0
+        north_ids = set()
+        south_ids = set()
         for _ in range(self.period_steps):
             traci.simulationStep()
             for lid in self.north_loop_ids:
-                sim_north += traci.inductionloop.getLastStepVehicleNumber(lid)
+                north_ids.update(traci.inductionloop.getLastStepVehicleIDs(lid))
             for lid in self.south_loop_ids:
-                sim_south += traci.inductionloop.getLastStepVehicleNumber(lid)
+                south_ids.update(traci.inductionloop.getLastStepVehicleIDs(lid))
+        sim_north = len(north_ids)
+        sim_south = len(south_ids)
 
         expected_south = self._current_row[4] / 12.0
         expected_north = self._current_row[5] / 12.0
@@ -153,7 +155,8 @@ class SUMOEnv(gym.Env):
             self._sim_active = False
             self._force_kill_sumo()
             try:
-                traci._connection = None
+                traci.connection._connections.pop("default", None)
+                traci.connection._connections.pop("", None)
             except AttributeError:
                 pass
         if self._temp_dir is not None:
@@ -223,6 +226,8 @@ class SUMOEnv(gym.Env):
         )
         for _ in range(self.warmup_steps):
             traci.simulationStep()
+        for veh_id in traci.vehicle.getIDList():
+            traci.vehicle.remove(veh_id)
 
     def _apply_params(self):
         for veh_id in traci.vehicle.getIDList():
