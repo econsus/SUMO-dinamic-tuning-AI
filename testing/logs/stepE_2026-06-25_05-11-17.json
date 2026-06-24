@@ -1,0 +1,129 @@
+{
+  "test_a": {
+    "A1_set_on_type_with_prefix": {
+      "set": {
+        "laneChangeModel.lcCooperative": "3.14",
+        "laneChangeModel.lcAssertive": "2.71"
+      },
+      "read_laneChangeModel.lcCooperative": "3.14",
+      "read_laneChangeModel.lcAssertive": "2.71",
+      "read_lcCooperative": "",
+      "read_lcAssertive": ""
+    },
+    "A2_set_on_type_without_prefix": {
+      "set": {
+        "lcCooperative": "1.23",
+        "lcAssertive": "4.56"
+      },
+      "read_lcCooperative": "1.23",
+      "read_lcAssertive": "4.56",
+      "read_laneChangeModel.lcCooperative": "3.14",
+      "read_laneChangeModel.lcAssertive": "2.71"
+    },
+    "A3_set_on_vehicle_with_prefix": {
+      "vehicle": "f_sl.0",
+      "set": {
+        "laneChangeModel.lcCooperative": "7.77",
+        "laneChangeModel.lcAssertive": "8.88"
+      },
+      "read_laneChangeModel.lcCooperative": "7.77",
+      "read_laneChangeModel.lcAssertive": "8.88",
+      "read_lcCooperative": "",
+      "read_lcAssertive": ""
+    },
+    "A4_new_vehicle_inherits": {
+      "vehicle": "f_upt.0",
+      "read_laneChangeModel.lcCooperative": "1.00",
+      "read_laneChangeModel.lcAssertive": "1.00",
+      "read_lcCooperative": "",
+      "read_lcAssertive": ""
+    },
+    "verdict": "NEW_VEHICLES_DO_NOT_INHERIT"
+  },
+  "test_b": [
+    {
+      "label": "Timid (env-accurate: existing only)",
+      "lcCooperative": 0.01,
+      "lcAssertive": 0.01,
+      "set_on_all_vehicles": false,
+      "sim_north": 54,
+      "sim_south": 50
+    },
+    {
+      "label": "Assertive (env-accurate: existing only)",
+      "lcCooperative": 5.0,
+      "lcAssertive": 5.0,
+      "set_on_all_vehicles": false,
+      "sim_north": 54,
+      "sim_south": 50
+    },
+    {
+      "label": "diff_assertive_minus_timid",
+      "delta_north": 0,
+      "delta_south": 0
+    }
+  ],
+  "test_bplus": [
+    {
+      "label": "Timid (ALL vehicles)",
+      "lcCooperative": 0.01,
+      "lcAssertive": 0.01,
+      "set_on_all_vehicles": true,
+      "sim_north": 54,
+      "sim_south": 50
+    },
+    {
+      "label": "Assertive (ALL vehicles)",
+      "lcCooperative": 5.0,
+      "lcAssertive": 5.0,
+      "set_on_all_vehicles": true,
+      "sim_north": 54,
+      "sim_south": 50
+    },
+    {
+      "label": "diff_assertive_minus_timid_all",
+      "delta_north": 0,
+      "delta_south": 0
+    }
+  ],
+  "test_c": [
+    {
+      "label": "Slow (speedFactor=0.5)",
+      "speedFactor": 0.5,
+      "sim_north": 26,
+      "sim_south": 26
+    },
+    {
+      "label": "Fast (speedFactor=2.0)",
+      "speedFactor": 2.0,
+      "sim_north": 57,
+      "sim_south": 57
+    },
+    {
+      "label": "diff_fast_minus_slow",
+      "delta_north": 31,
+      "delta_south": 31
+    }
+  ],
+  "test_d": [
+    {
+      "label": "Timid via XML (0.01, 0.01)",
+      "lcCooperative": 0.01,
+      "lcAssertive": 0.01,
+      "sim_north": 54,
+      "sim_south": 50
+    },
+    {
+      "label": "Assertive via XML (5.0, 5.0)",
+      "lcCooperative": 5.0,
+      "lcAssertive": 5.0,
+      "sim_north": 54,
+      "sim_south": 50
+    },
+    {
+      "label": "diff_assertive_minus_timid_via_xml",
+      "delta_north": 0,
+      "delta_south": 0
+    }
+  ]
+}

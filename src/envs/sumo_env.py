@@ -10,6 +10,7 @@ import traci
 
 ROU_XML_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 <routes>
+    <vType id="DEFAULT_VEHTYPE" lcCooperative="{coop}" lcAssertive="{assert}"/>
     <flow id="f_sl" begin="0.00" from="675098743#0" to="675098743#2" end="3600.00" vehsPerHour="{sl}"/>
     <flow id="f_spt" begin="0.00" from="675098743#0" to="585303113#2" end="3600.00" vehsPerHour="{spt}"/>
     <flow id="f_ul" begin="0.00" color="50,255,0" from="585303113#0" to="585303113#2" end="3600.00" vehsPerHour="{ul}"/>
@@ -91,9 +92,6 @@ class SUMOEnv(gym.Env):
         self.step_idx = 0
         self.current_params = {"lcCooperative": 1.0, "lcAssertive": 1.0}
 
-        self._start_sumo(int(row[0]), int(row[1]), int(row[2]), int(row[3]))
-        self._run_warmup()
-
         obs = np.array([row[0], row[1], row[2], row[3]], dtype=np.float32)
         return obs, {"params": dict(self.current_params)}
 
@@ -104,7 +102,10 @@ class SUMOEnv(gym.Env):
         self.current_params["lcCooperative"] = max(0.0, min(5.0, coop))
         self.current_params["lcAssertive"] = max(0.0, min(5.0, assertive))
 
-        self._apply_params()
+        row = self._current_row
+        self._start_sumo(int(row[0]), int(row[1]), int(row[2]), int(row[3]),
+                         self.current_params["lcCooperative"], self.current_params["lcAssertive"])
+        self._run_warmup()
 
         north_ids = set()
         south_ids = set()
@@ -196,12 +197,15 @@ class SUMOEnv(gym.Env):
         except Exception:
             pass
 
-    def _start_sumo(self, sl, spt, ul, upt):
+    def _start_sumo(self, sl, spt, ul, upt, coop=1.0, assert_=1.0):
         if self._temp_dir is not None:
             self._temp_dir.cleanup()
         self._temp_dir = tempfile.TemporaryDirectory(prefix="sumo_env_")
 
-        rou_xml = ROU_XML_TEMPLATE.format(sl=sl, spt=spt, ul=ul, upt=upt)
+        rou_xml = ROU_XML_TEMPLATE.format(
+            sl=sl, spt=spt, ul=ul, upt=upt,
+            coop=coop, **{"assert": assert_},
+        )
         rou_path = os.path.join(self._temp_dir.name, "flows.rou.xml")
         with open(rou_path, "w") as f:
             f.write(rou_xml)
@@ -219,32 +223,7 @@ class SUMOEnv(gym.Env):
         self._sim_active = True
 
     def _run_warmup(self):
-        traci.vehicletype.setParameter(
-            "DEFAULT_VEHTYPE", "laneChangeModel.lcCooperative", "1.0"
-        )
-        traci.vehicletype.setParameter(
-            "DEFAULT_VEHTYPE", "laneChangeModel.lcAssertive", "1.0"
-        )
         for _ in range(self.warmup_steps):
             traci.simulationStep()
         for veh_id in traci.vehicle.getIDList():
             traci.vehicle.remove(veh_id)
-
-    def _apply_params(self):
-        for veh_id in traci.vehicle.getIDList():
-            traci.vehicle.setParameter(
-                veh_id, "laneChangeModel.lcCooperative",
-                str(self.current_params["lcCooperative"])
-            )
-            traci.vehicle.setParameter(
-                veh_id, "laneChangeModel.lcAssertive",
-                str(self.current_params["lcAssertive"])
-            )
-        traci.vehicletype.setParameter(
-            "DEFAULT_VEHTYPE", "laneChangeModel.lcCooperative",
-            str(self.current_params["lcCooperative"])
-        )
-        traci.vehicletype.setParameter(
-            "DEFAULT_VEHTYPE", "laneChangeModel.lcAssertive",
-            str(self.current_params["lcAssertive"])
-        )
