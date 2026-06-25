@@ -3,11 +3,11 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 class TrainingLogger:
-    def __init__(self, log_dir: str = "logs", hyperparams: Optional[Dict[str, Any]] = None):
+    def __init__(self, log_dir: str = "logs", hyperparams: Optional[Dict[str, Any]] = None, param_names: Optional[List[str]] = None):
         start_time = datetime.now()
         folder_name = start_time.strftime("%Y-%m-%d_%H-%M-%S")
         self._run_dir = Path(log_dir) / folder_name
@@ -18,6 +18,8 @@ class TrainingLogger:
             with open(config_path, "w") as f:
                 json.dump(hyperparams, f, indent=2, default=str)
 
+        self.param_names = param_names or []
+
         csv_path = self._run_dir / "metrics.csv"
         self._csv_file = open(csv_path, "w", newline="")
         self._csv_writer = csv.writer(self._csv_file)
@@ -26,13 +28,12 @@ class TrainingLogger:
             "reward", "sim_south", "sim_north",
             "expected_south", "expected_north",
             "error_south", "error_north",
-            "lcCooperative", "lcAssertive",
+        ] + self.param_names + [
             "epsilon", "loss",
         ])
         self._csv_file.flush()
 
         self._summary: list = []
-        self._iter_start_step: int = 0
 
     @property
     def run_dir(self) -> Path:
@@ -48,11 +49,11 @@ class TrainingLogger:
         sim_north: float,
         expected_south: float,
         expected_north: float,
-        lcCooperative: float,
-        lcAssertive: float,
-        epsilon: float,
+        params: Optional[Dict[str, float]] = None,
+        epsilon: float = 0.0,
         loss: Optional[float] = None,
     ):
+        param_values = [params.get(k, "") for k in self.param_names] if params else []
         self._csv_writer.writerow([
             iteration, data_idx, step_in_data,
             f"{reward:.3f}",
@@ -60,7 +61,7 @@ class TrainingLogger:
             f"{expected_south:.0f}", f"{expected_north:.0f}",
             f"{sim_south - expected_south:.3f}",
             f"{sim_north - expected_north:.3f}",
-            f"{lcCooperative:.3f}", f"{lcAssertive:.3f}",
+        ] + [f"{v:.3f}" if isinstance(v, (int, float)) else v for v in param_values] + [
             f"{epsilon:.4f}",
             f"{loss:.6f}" if loss is not None else "",
         ])

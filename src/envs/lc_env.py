@@ -18,7 +18,7 @@ ROU_XML_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 </routes>"""
 
 
-class SUMOEnv(gym.Env):
+class LCSumoEnv(gym.Env):
     metadata = {"render_modes": []}
 
     def __init__(
@@ -90,7 +90,6 @@ class SUMOEnv(gym.Env):
         row = self.target_data[self.current_data_idx]
         self._current_row = row
         self.step_idx = 0
-        self.current_params = {"lcCooperative": 1.0, "lcAssertive": 1.0}
 
         obs = np.array([row[0], row[1], row[2], row[3]], dtype=np.float32)
         return obs, {"params": dict(self.current_params)}
@@ -102,6 +101,7 @@ class SUMOEnv(gym.Env):
         self.current_params["lcCooperative"] = max(0.0, min(5.0, coop))
         self.current_params["lcAssertive"] = max(0.0, min(5.0, assertive))
 
+        self._stop_sumo()
         row = self._current_row
         self._start_sumo(int(row[0]), int(row[1]), int(row[2]), int(row[3]),
                          self.current_params["lcCooperative"], self.current_params["lcAssertive"])

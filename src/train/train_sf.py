@@ -17,7 +17,7 @@ else:
 
 from data_repo import DataRepo
 from data.traffic_data import import_records, data_records
-from envs.sumo_env import SUMOEnv
+from envs.sf_env import SFSumoEnv
 from agents.dqn_agent import DQNAgent
 from logger import TrainingLogger
 
@@ -42,7 +42,7 @@ def extract_target_data() -> np.ndarray:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="DQN training for SUMO calibration")
+    parser = argparse.ArgumentParser(description="DQN training for SUMO calibration — speedFactor")
     parser.add_argument("--iterations", type=int, default=5)
     parser.add_argument("--sumo-binary", default="sumo")
 
@@ -73,7 +73,7 @@ def main():
         return
 
     repo = DataRepo()
-    env = SUMOEnv(
+    env = SFSumoEnv(
         sumo_config_path=str(repo.sumo_config_path),
         sumo_binary=args.sumo_binary,
         warmup_minutes=args.warmup_minutes,
@@ -90,10 +90,12 @@ def main():
         buffer_capacity=args.buffer_capacity,
     )
 
-    logger = TrainingLogger(log_dir="logs", hyperparams=vars(args))
+    param_names = list(env.action_map[0].keys())
+    logger = TrainingLogger(log_dir="logs", hyperparams=vars(args), param_names=param_names)
     epsilon = args.epsilon_start
 
     print(f"\nRunning {args.iterations} iteration(s)...")
+    print(f"Env: SFSumoEnv (speedFactor, Flow B — params persist across data points)")
     print(f"Logs -> {logger.run_dir}\n")
 
     for iteration in range(args.iterations):
@@ -130,8 +132,7 @@ def main():
                     sim_north=info["sim_north"],
                     expected_south=info["expected_south"],
                     expected_north=info["expected_north"],
-                    lcCooperative=info["params"]["lcCooperative"],
-                    lcAssertive=info["params"]["lcAssertive"],
+                    params=info["params"],
                     epsilon=epsilon,
                     loss=step_loss,
                 )
