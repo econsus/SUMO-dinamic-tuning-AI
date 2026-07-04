@@ -31,9 +31,11 @@ class SFSumoEnv(gym.Env):
         north_loop_ids: Optional[List[str]] = None,
         south_loop_ids: Optional[List[str]] = None,
         action_map: Optional[List[Dict[str, float]]] = None,
+        reward_scale: float = 1.0,
     ):
         super().__init__()
 
+        self.reward_scale = reward_scale
         self.sumo_config_path = sumo_config_path
         self.sumo_binary = sumo_binary
         self.step_length = step_length
@@ -117,7 +119,7 @@ class SFSumoEnv(gym.Env):
         expected_north = self._current_row[5] / divisor
         mape = (abs(sim_south - expected_south) / expected_south +
                 abs(sim_north - expected_north) / expected_north) / 2.0
-        reward = -mape
+        reward = -mape * self.reward_scale
 
         self.step_idx += 1
         terminated = self.step_idx >= self.steps_per_data

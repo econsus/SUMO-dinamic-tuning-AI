@@ -33,6 +33,14 @@ class TrainingLogger:
         ])
         self._csv_file.flush()
 
+        actions_path = self._run_dir / "actions.csv"
+        self._actions_file = open(actions_path, "w", newline="")
+        self._actions_writer = csv.writer(self._actions_file)
+        self._actions_writer.writerow([
+            "iteration", "data_point", "step_in_data", "action_index"
+        ] + [f"delta_{k}" for k in self.param_names])
+        self._actions_file.flush()
+
         self._summary: list = []
 
     @property
@@ -67,6 +75,20 @@ class TrainingLogger:
         ])
         self._csv_file.flush()
 
+    def log_action(
+        self,
+        iteration: int,
+        data_idx: int,
+        step_in_data: int,
+        action_index: int,
+        delta: Dict[str, float],
+    ):
+        delta_values = [delta.get(k, "") for k in self.param_names]
+        self._actions_writer.writerow([
+            iteration, data_idx, step_in_data, action_index,
+        ] + [f"{v:+.3f}" if isinstance(v, (int, float)) else v for v in delta_values])
+        self._actions_file.flush()
+
     def log_iteration(
         self,
         iteration: int,
@@ -92,6 +114,7 @@ class TrainingLogger:
 
     def close(self):
         self._csv_file.close()
+        self._actions_file.close()
 
 
 __all__ = ["TrainingLogger"]

@@ -50,6 +50,8 @@ def main():
                         help="SUMO warm-up duration before RL starts (default: 5)")
     parser.add_argument("--period-minutes", type=int, default=5,
                         help="Duration of each RL step / reward window (default: 5)")
+    parser.add_argument("--reward-scale", type=float, default=1.0,
+                        help="Multiplier for reward (mape negatif), default 1.0")
 
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--gamma", type=float, default=0.99)
@@ -78,6 +80,7 @@ def main():
         sumo_binary=args.sumo_binary,
         warmup_minutes=args.warmup_minutes,
         period_minutes=args.period_minutes,
+        reward_scale=args.reward_scale,
     )
     env.set_target_data(target_data)
 
@@ -135,6 +138,15 @@ def main():
                     params=info["params"],
                     epsilon=epsilon,
                     loss=step_loss,
+                )
+
+                delta = env.action_map[action]
+                logger.log_action(
+                    iteration=iteration + 1,
+                    data_idx=data_idx,
+                    step_in_data=step_in_data + 1,
+                    action_index=action,
+                    delta=delta,
                 )
 
                 obs = next_obs
