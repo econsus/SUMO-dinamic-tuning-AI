@@ -32,10 +32,12 @@ class SFSumoEnv(gym.Env):
         south_loop_ids: Optional[List[str]] = None,
         action_map: Optional[List[Dict[str, float]]] = None,
         reward_scale: float = 1.0,
+        reset_params_on_reset: bool = False,
     ):
         super().__init__()
 
         self.reward_scale = reward_scale
+        self.reset_params_on_reset = reset_params_on_reset
         self.sumo_config_path = sumo_config_path
         self.sumo_binary = sumo_binary
         self.step_length = step_length
@@ -84,6 +86,9 @@ class SFSumoEnv(gym.Env):
         super().reset(seed=seed)
 
         self._stop_sumo()
+
+        if self.reset_params_on_reset:
+            self.current_params = {"speedFactor": 1.0}
 
         row = self.target_data[self.current_data_idx]
         self._current_row = row

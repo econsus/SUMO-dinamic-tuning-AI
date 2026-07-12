@@ -52,6 +52,8 @@ def main():
                         help="Duration of each RL step / reward window (default: 5)")
     parser.add_argument("--reward-scale", type=float, default=1.0,
                         help="Multiplier for reward (mape negatif), default 1.0")
+    parser.add_argument("--flow", choices=["persist", "reset"], default="persist",
+                        help="persist: params carry across data points. reset: params reset to default each data point.")
 
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--gamma", type=float, default=0.99)
@@ -81,6 +83,7 @@ def main():
         warmup_minutes=args.warmup_minutes,
         period_minutes=args.period_minutes,
         reward_scale=args.reward_scale,
+        reset_params_on_reset=(args.flow == "reset"),
     )
     env.set_target_data(target_data)
 
