@@ -25,7 +25,7 @@ class SFSumoEnv(gym.Env):
         self,
         sumo_config_path: str,
         sumo_binary: str = "sumo",
-        step_length: float = 0.05,
+        step_length: float = 1,
         warmup_minutes: int = 5,
         period_minutes: int = 5,
         north_loop_ids: Optional[List[str]] = None,
@@ -66,7 +66,7 @@ class SFSumoEnv(gym.Env):
         ]
 
         self.observation_space = spaces.Box(
-            low=0, high=np.inf, shape=(4,), dtype=np.float32
+            low=0, high=np.inf, shape=(5,), dtype=np.float32
         )
 
         self.target_data: Optional[np.ndarray] = None
@@ -78,6 +78,7 @@ class SFSumoEnv(gym.Env):
 
     def set_target_data(self, data: np.ndarray):
         self.target_data = data
+        self.flow_max = float(np.max(data[:, :4]))
 
     def reset_data_pointer(self):
         self.current_data_idx = 0
@@ -94,7 +95,7 @@ class SFSumoEnv(gym.Env):
         self._current_row = row
         self.step_idx = 0
 
-        obs = np.array([row[0], row[1], row[2], row[3]], dtype=np.float32)
+        obs = np.array([row[0], row[1], row[2], row[3], *self.current_params.values()], dtype=np.float32) / self.flow_max
         return obs, {"params": dict(self.current_params)}
 
     def step(self, action: int):
@@ -136,9 +137,10 @@ class SFSumoEnv(gym.Env):
 
         next_obs = np.array(
             [self._current_row[0], self._current_row[1],
-             self._current_row[2], self._current_row[3]],
+             self._current_row[2], self._current_row[3],
+             *self.current_params.values()],
             dtype=np.float32,
-        )
+        ) / self.flow_max
 
         info = {
             "sim_south": sim_south,
