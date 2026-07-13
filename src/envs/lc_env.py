@@ -49,15 +49,15 @@ class LCSumoEnv(gym.Env):
         self.steps_per_data = 4
 
         self.action_map = action_map or [
-            {"lcCooperative": -0.2, "lcAssertive": -0.2},
-            {"lcCooperative": -0.2, "lcAssertive":  0.0},
-            {"lcCooperative": -0.2, "lcAssertive":  0.2},
-            {"lcCooperative":  0.0, "lcAssertive": -0.2},
+            {"lcCooperative": -0.7, "lcAssertive": -0.7},
+            {"lcCooperative": -0.7, "lcAssertive":  0.0},
+            {"lcCooperative": -0.7, "lcAssertive":  0.7},
+            {"lcCooperative":  0.0, "lcAssertive": -0.7},
             {"lcCooperative":  0.0, "lcAssertive":  0.0},
-            {"lcCooperative":  0.0, "lcAssertive":  0.2},
-            {"lcCooperative":  0.2, "lcAssertive": -0.2},
-            {"lcCooperative":  0.2, "lcAssertive":  0.0},
-            {"lcCooperative":  0.2, "lcAssertive":  0.2},
+            {"lcCooperative":  0.0, "lcAssertive":  0.5},
+            {"lcCooperative":  0.7, "lcAssertive": -0.7},
+            {"lcCooperative":  0.7, "lcAssertive":  0.0},
+            {"lcCooperative":  0.5, "lcAssertive":  0.5},
         ]
         self.n_actions = len(self.action_map)
         self.action_space = spaces.Discrete(self.n_actions)
