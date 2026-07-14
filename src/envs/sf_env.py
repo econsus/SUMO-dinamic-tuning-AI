@@ -25,7 +25,7 @@ class SFSumoEnv(gym.Env):
         self,
         sumo_config_path: str,
         sumo_binary: str = "sumo",
-        step_length: float = 1,
+        step_length: float = 0.5,
         warmup_minutes: int = 5,
         period_minutes: int = 5,
         north_loop_ids: Optional[List[str]] = None,

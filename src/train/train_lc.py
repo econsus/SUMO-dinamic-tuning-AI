@@ -159,6 +159,7 @@ def main():
 
             total_iter_reward += data_reward
 
+        used_epsilon = epsilon
         next_epsilon = max(args.epsilon_min, epsilon * args.epsilon_decay)
         epsilon = next_epsilon
         avg_reward = total_iter_reward / (n_data * 4) if n_data > 0 else 0.0
@@ -178,7 +179,7 @@ def main():
               f"total={total_iter_reward:+9.1f}  "
               f"avg={avg_reward:+7.3f}  "
               f"loss={loss_str}  "
-              f"eps={epsilon:.3f}  "
+              f"eps={used_epsilon:.3f}  "
               f"→ {next_epsilon:.3f}  "
               f"buf={len(agent.replay_buffer):4d}  "
               f"steps={total_steps}")
