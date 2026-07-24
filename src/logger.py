@@ -29,7 +29,7 @@ class TrainingLogger:
             "expected_south", "expected_north",
             "error_south", "error_north",
         ] + self.param_names + [
-            "epsilon", "loss", "error_delta",
+            "epsilon", "loss", "improvement",
         ])
         self._csv_file.flush()
 
@@ -60,7 +60,7 @@ class TrainingLogger:
         params: Optional[Dict[str, float]] = None,
         epsilon: float = 0.0,
         loss: Optional[float] = None,
-        error_delta: Optional[float] = None,
+        improvement: Optional[float] = None,
     ):
         param_values = [params.get(k, "") for k in self.param_names] if params else []
         self._csv_writer.writerow([
@@ -73,7 +73,7 @@ class TrainingLogger:
         ] + [f"{v:.3f}" if isinstance(v, (int, float)) else v for v in param_values] + [
             f"{epsilon:.4f}",
             f"{loss:.6f}" if loss is not None else "",
-            f"{error_delta:+.6f}" if error_delta is not None else "",
+            f"{improvement:+.6f}" if improvement is not None else "",
         ])
         self._csv_file.flush()
 

@@ -146,7 +146,10 @@ def main():
             for step_in_data in range(1, args.steps_per_data + 1):
                 action = agent.act(obs, epsilon)
                 next_obs, reward, terminated, _, info = env.step(action)
-                agent.remember(obs, action, reward, next_obs, terminated)
+                mape = -reward
+                improvement = baseline_map[data_idx] - mape
+                adjusted_reward = improvement * args.reward_scale
+                agent.remember(obs, action, adjusted_reward, next_obs, terminated)
 
                 step_loss = None
                 for _ in range(args.replay_per_step):
@@ -156,9 +159,6 @@ def main():
                 if step_loss is not None:
                     iter_loss_sum += step_loss
                     iter_loss_count += 1
-
-                mape = -reward
-                error_delta = mape - baseline_map[data_idx]
 
                 logger.log_step(
                     iteration=iteration + 1,
@@ -172,7 +172,7 @@ def main():
                     params=info["params"],
                     epsilon=epsilon,
                     loss=step_loss,
-                    error_delta=error_delta,
+                    improvement=improvement,
                 )
 
                 delta = env.action_map[action]
@@ -185,7 +185,7 @@ def main():
                 )
 
                 obs = next_obs
-                data_reward += reward
+                data_reward += adjusted_reward
                 total_steps += 1
 
             total_iter_reward += data_reward
