@@ -25,7 +25,7 @@ class SFSumoEnv(gym.Env):
         self,
         sumo_config_path: str,
         sumo_binary: str = "sumo",
-        step_length: float = 0.5,
+        step_length: float = 1,
         warmup_minutes: int = 5,
         period_minutes: int = 5,
         north_loop_ids: Optional[List[str]] = None,
@@ -33,6 +33,7 @@ class SFSumoEnv(gym.Env):
         action_map: Optional[List[Dict[str, float]]] = None,
         reward_scale: float = 1.0,
         reset_params_on_reset: bool = False,
+        steps_per_data: int = 4,
     ):
         super().__init__()
 
@@ -46,14 +47,14 @@ class SFSumoEnv(gym.Env):
         self.warmup_steps = self.minute_steps * self.warmup_minutes
         self.period_minutes = period_minutes
         self.period_steps = self.minute_steps * self.period_minutes
-        self.steps_per_data = 4
+        self.steps_per_data = steps_per_data
 
         self.action_map = action_map or [
-            {"speedFactor": -0.5},
-            {"speedFactor": -0.3},
+            {"speedFactor": -0.01},
+            {"speedFactor": -0.1},
             {"speedFactor":  0.0},
-            {"speedFactor":  0.3},
-            {"speedFactor":  0.5},
+            {"speedFactor":  0.1},
+            {"speedFactor": -0.01},
         ]
         self.n_actions = len(self.action_map)
         self.action_space = spaces.Discrete(self.n_actions)
@@ -79,6 +80,40 @@ class SFSumoEnv(gym.Env):
     def set_target_data(self, data: np.ndarray):
         self.target_data = data
         self.flow_max = float(np.max(data[:, :4]))
+
+    def measure_baseline(self):
+        saved_params = dict(self.current_params)
+        self.current_params = {"speedFactor": 1.0}
+        row = self._current_row
+        self._start_sumo(int(row[0]), int(row[1]), int(row[2]), int(row[3]),
+                         self.current_params["speedFactor"])
+        self._run_warmup()
+        north_ids = set()
+        south_ids = set()
+        for _ in range(self.period_steps):
+            traci.simulationStep()
+            for lid in self.north_loop_ids:
+                north_ids.update(traci.inductionloop.getLastStepVehicleIDs(lid))
+            for lid in self.south_loop_ids:
+                south_ids.update(traci.inductionloop.getLastStepVehicleIDs(lid))
+        sim_north = len(north_ids)
+        sim_south = len(south_ids)
+        divisor = 60.0 / self.period_minutes
+        expected_south = row[4] / divisor
+        expected_north = row[5] / divisor
+        mape = (abs(sim_south - expected_south) / expected_south +
+                abs(sim_north - expected_north) / expected_north) / 2.0
+        reward = -mape * self.reward_scale
+        info = {
+            "sim_south": sim_south,
+            "sim_north": sim_north,
+            "expected_south": expected_south,
+            "expected_north": expected_north,
+            "params": dict(self.current_params),
+        }
+        self._stop_sumo()
+        self.current_params = saved_params
+        return reward, info
 
     def reset_data_pointer(self):
         self.current_data_idx = 0

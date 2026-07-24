@@ -1,5 +1,6 @@
 import os
 import sys
+import csv
 import argparse
 import numpy as np
 
@@ -54,6 +55,8 @@ def main():
                         help="Multiplier for reward (mape negatif), default 1.0")
     parser.add_argument("--flow", choices=["persist", "reset"], default="persist",
                         help="persist: params carry across data points. reset: params reset to default each data point.")
+    parser.add_argument("--steps-per-data", type=int, default=4,
+                        help="Number of RL steps (SUMO simulation) per data point (default: 4)")
 
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--gamma", type=float, default=0.99)
@@ -84,6 +87,7 @@ def main():
         period_minutes=args.period_minutes,
         reward_scale=args.reward_scale,
         reset_params_on_reset=(args.flow == "reset"),
+        steps_per_data=args.steps_per_data,
     )
     env.set_target_data(target_data)
 
@@ -105,6 +109,29 @@ def main():
     print(f"Env: SFSumoEnv (speedFactor, Flow {flow_label})")
     print(f"Logs -> {logger.run_dir}\n")
 
+    run_dir = logger.run_dir
+    best_avg_reward = -float("inf")
+
+    # ── Run baseline once for all data points ──
+    print("Running baseline test (SUMO defaults)...")
+    baseline_map = {}
+    for data_idx in range(n_data):
+        env.current_data_idx = data_idx
+        obs, _ = env.reset()
+        rew, info = env.measure_baseline()
+        mape = -rew
+        baseline_map[data_idx] = mape
+        print(f"  [{data_idx+1:2d}/{n_data}] mape={mape:.4f}")
+    baseline_path = run_dir / "baseline.csv"
+    with open(baseline_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["data_point", "mape"])
+        for idx in range(n_data):
+            writer.writerow([idx, f"{baseline_map[idx]:.6f}"])
+    print(f"Baseline saved to {baseline_path}")
+    env.reset_data_pointer()
+    print()
+
     for iteration in range(args.iterations):
         env.reset_data_pointer()
         total_iter_reward = 0.0
@@ -116,7 +143,7 @@ def main():
             obs, _ = env.reset()
             data_reward = 0.0
 
-            for step_in_data in range(4):
+            for step_in_data in range(1, args.steps_per_data + 1):
                 action = agent.act(obs, epsilon)
                 next_obs, reward, terminated, _, info = env.step(action)
                 agent.remember(obs, action, reward, next_obs, terminated)
@@ -130,10 +157,13 @@ def main():
                     iter_loss_sum += step_loss
                     iter_loss_count += 1
 
+                mape = -reward
+                error_delta = mape - baseline_map[data_idx]
+
                 logger.log_step(
                     iteration=iteration + 1,
                     data_idx=data_idx,
-                    step_in_data=step_in_data + 1,
+                    step_in_data=step_in_data,
                     reward=reward,
                     sim_south=info["sim_south"],
                     sim_north=info["sim_north"],
@@ -142,13 +172,14 @@ def main():
                     params=info["params"],
                     epsilon=epsilon,
                     loss=step_loss,
+                    error_delta=error_delta,
                 )
 
                 delta = env.action_map[action]
                 logger.log_action(
                     iteration=iteration + 1,
                     data_idx=data_idx,
-                    step_in_data=step_in_data + 1,
+                    step_in_data=step_in_data,
                     action_index=action,
                     delta=delta,
                 )
@@ -162,7 +193,7 @@ def main():
         used_epsilon = epsilon
         next_epsilon = max(args.epsilon_min, epsilon * args.epsilon_decay)
         epsilon = next_epsilon
-        avg_reward = total_iter_reward / (n_data * 4) if n_data > 0 else 0.0
+        avg_reward = total_iter_reward / (n_data * args.steps_per_data) if n_data > 0 else 0.0
         avg_loss = (iter_loss_sum / iter_loss_count) if iter_loss_count > 0 else None
 
         logger.log_iteration(
@@ -180,14 +211,24 @@ def main():
               f"avg={avg_reward:+7.3f}  "
               f"loss={loss_str}  "
               f"eps={used_epsilon:.3f}  "
-              f"→ {next_epsilon:.3f}  "
+              f"\u2192 {next_epsilon:.3f}  "
               f"buf={len(agent.replay_buffer):4d}  "
               f"steps={total_steps}")
 
-    final_ckpt = logger.run_dir / "dqn_final.pt"
-    agent.save(str(final_ckpt))
+        # ── Checkpoint saves ──
+        agent.save(str(run_dir / f"dqn_iter_{iteration + 1}.pt"))
+        agent.save(str(run_dir / "dqn_latest.pt"))
+
+        if avg_reward > best_avg_reward:
+            best_avg_reward = avg_reward
+            agent.save(str(run_dir / "dqn_best.pt"))
+            print(f"        >>> New best model (avg_reward={avg_reward:.3f})")
+
     logger.close()
-    print(f"\nDone. Model saved to {final_ckpt}")
+    print(f"\nDone. Models saved in {run_dir}/")
+    print(f"  dqn_latest.pt  — final iteration")
+    print(f"  dqn_best.pt    — iteration with highest avg_reward ({best_avg_reward:.3f})")
+    print(f"  dqn_iter_*.pt  — one per iteration")
     env.close()
 
 
