@@ -54,7 +54,7 @@ class SFSumoEnv(gym.Env):
             {"speedFactor": -0.1},
             {"speedFactor":  0.0},
             {"speedFactor":  0.1},
-            {"speedFactor": -0.01},
+            {"speedFactor":  0.01},
         ]
         self.n_actions = len(self.action_map)
         self.action_space = spaces.Discrete(self.n_actions)
