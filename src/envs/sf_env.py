@@ -67,7 +67,7 @@ class SFSumoEnv(gym.Env):
         ]
 
         self.observation_space = spaces.Box(
-            low=0, high=np.inf, shape=(5,), dtype=np.float32
+            low=-5, high=5, shape=(7,), dtype=np.float32
         )
 
         self.target_data: Optional[np.ndarray] = None
@@ -80,6 +80,16 @@ class SFSumoEnv(gym.Env):
     def set_target_data(self, data: np.ndarray):
         self.target_data = data
         self.flow_max = float(np.max(data[:, :4]))
+
+    def _build_obs(self, row, params, sim_north=0, sim_south=0):
+        flow_part = np.array([row[0], row[1], row[2], row[3]], dtype=np.float32) / self.flow_max
+        sf = np.array([params["speedFactor"] / 2.0], dtype=np.float32)
+        divisor = 60.0 / self.period_minutes
+        expected_north = row[5] / divisor if divisor > 0 else 1.0
+        expected_south = row[4] / divisor if divisor > 0 else 1.0
+        sim_n = np.array([sim_north / max(expected_north, 1.0)], dtype=np.float32)
+        sim_s = np.array([sim_south / max(expected_south, 1.0)], dtype=np.float32)
+        return np.concatenate([flow_part, sf, sim_n, sim_s])
 
     def measure_baseline(self):
         saved_params = dict(self.current_params)
@@ -130,7 +140,7 @@ class SFSumoEnv(gym.Env):
         self._current_row = row
         self.step_idx = 0
 
-        obs = np.array([row[0], row[1], row[2], row[3], *self.current_params.values()], dtype=np.float32) / self.flow_max
+        obs = self._build_obs(row, self.current_params)
         return obs, {"params": dict(self.current_params)}
 
     def step(self, action: int):
@@ -170,12 +180,8 @@ class SFSumoEnv(gym.Env):
             if self.current_data_idx >= len(self.target_data):
                 self.current_data_idx = 0
 
-        next_obs = np.array(
-            [self._current_row[0], self._current_row[1],
-             self._current_row[2], self._current_row[3],
-             *self.current_params.values()],
-            dtype=np.float32,
-        ) / self.flow_max
+        next_obs = self._build_obs(self._current_row, self.current_params,
+                                    sim_north, sim_south)
 
         info = {
             "sim_south": sim_south,

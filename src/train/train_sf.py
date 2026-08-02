@@ -92,7 +92,7 @@ def main():
     env.set_target_data(target_data)
 
     agent = DQNAgent(
-        state_dim=5,
+        state_dim=7,
         action_dim=env.n_actions,
         lr=args.lr,
         gamma=args.gamma,
