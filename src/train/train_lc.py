@@ -21,6 +21,7 @@ from data.traffic_data import import_records, data_records
 from envs.lc_env import LCSumoEnv
 from agents.dqn_agent import DQNAgent
 from logger import TrainingLogger
+from error_stats import load_error_stats, mape_from_info, normalize_reward, default_stats_path
 
 
 def extract_target_data() -> np.ndarray:
@@ -79,6 +80,19 @@ def main():
         print("No data points to train on.")
         return
 
+    error_stats = load_error_stats(default_stats_path())
+    stats_key = {}
+    missing = []
+    for idx, row in enumerate(target_data):
+        key = tuple(int(v) for v in row[:4])
+        if key not in error_stats:
+            missing.append(key)
+        stats_key[idx] = key
+    if missing:
+        sys.exit(f"Missing error stats for data point(s): {missing}. "
+                 f"Run testing/compute_error_stats.py first.")
+    print(f"Loaded error stats for {len(error_stats)} data point(s)")
+
     repo = DataRepo()
     env = LCSumoEnv(
         sumo_config_path=str(repo.sumo_config_path),
@@ -119,7 +133,7 @@ def main():
         env.current_data_idx = data_idx
         obs, _ = env.reset()
         rew, info = env.measure_baseline()
-        mape = -rew
+        mape = mape_from_info(info)
         baseline_map[data_idx] = mape
         print(f"  [{data_idx+1:2d}/{n_data}] mape={mape:.4f}")
     baseline_path = run_dir / "baseline.csv"
@@ -146,9 +160,10 @@ def main():
             for step_in_data in range(1, args.steps_per_data + 1):
                 action = agent.act(obs, epsilon)
                 next_obs, reward, terminated, _, info = env.step(action)
-                mape = -reward
+                mape = mape_from_info(info)
                 improvement = baseline_map[data_idx] - mape
-                adjusted_reward = improvement * args.reward_scale
+                mean, std = error_stats[stats_key[data_idx]]
+                adjusted_reward = normalize_reward(mape, mean, std) * args.reward_scale
                 agent.remember(obs, action, adjusted_reward, next_obs, terminated)
 
                 step_loss = None
